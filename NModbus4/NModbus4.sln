@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientGUI", "..\ClientGUI\ClientGUI.csproj", "{3B777106-9DF5-438F-B73A-51A725230257}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NModbus4", "NModbus4\NModbus4.csproj", "{4029EAD3-EC74-459C-9CB9-E7334F1B0679}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NModbus4.Serial", "..\NModbus4.Serial\NModbus4.Serial.csproj", "{4D80DB09-D85F-49D6-9D43-12723384C8F0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3B777106-9DF5-438F-B73A-51A725230257}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B777106-9DF5-438F-B73A-51A725230257}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B777106-9DF5-438F-B73A-51A725230257}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B777106-9DF5-438F-B73A-51A725230257}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4029EAD3-EC74-459C-9CB9-E7334F1B0679}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4029EAD3-EC74-459C-9CB9-E7334F1B0679}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4029EAD3-EC74-459C-9CB9-E7334F1B0679}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4029EAD3-EC74-459C-9CB9-E7334F1B0679}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4D80DB09-D85F-49D6-9D43-12723384C8F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D80DB09-D85F-49D6-9D43-12723384C8F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D80DB09-D85F-49D6-9D43-12723384C8F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D80DB09-D85F-49D6-9D43-12723384C8F0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
