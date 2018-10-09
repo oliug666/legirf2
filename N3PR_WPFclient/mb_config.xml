@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<Configuration>
+    <Modbus>
+    	<addr>192.168.5.32</addr>
+    	<port>502</port>
+    	<data_frequency_sec>30</data_frequency_sec>
+    </Modbus>
+    <MySql>
+    	<addr>163.172.190.253</addr>
+    	<db_name>N3PR_DATA</db_name>
+	<table_name>n3pr_data</table_name>
+    	<username>n3pr_client</username>
+    	<pwd>Sein3pr?0</pwd>
+    </MySql>
+</Configuration>

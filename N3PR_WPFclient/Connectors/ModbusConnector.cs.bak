@@ -1,0 +1,134 @@
+﻿using Modbus.Device;
+using N3PR_WPFclient.Helpers;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Sockets;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace N3PR_WPFclient.Connectors
+{
+    public enum MbState
+    {
+        CREATING_MB_SOCKET,
+        CONNECTION_MB_ESTABLISHED
+    }
+
+    public class ModbusConnector
+    {
+        public string IPAddress;
+        public int Port;
+        public int FreqReadSec;
+
+        public List<int> IVal;
+        public List<bool> BVal;
+        public List<uint> UIVal;
+
+        public bool IsConnected { get { return _isConnected; } set { _isConnected = value; ConnectionChangedEvent?.Invoke(this, null); } }
+
+        public EventHandler OnDataReceivedEvent;
+        public EventHandler ConnectionChangedEvent;
+        public EventHandler ErrorEvent;
+
+        public string Status;
+
+        private ModbusIpMaster _master;
+        private MbState _myMbState;
+        private TcpClient _client;
+        private bool _isConnected;
+
+        public ModbusConnector(ModbusCfg mb)
+        {
+            Port = mb.Port;
+            IPAddress = mb.Address;
+            FreqReadSec = mb.Freq;
+            _myMbState = MbState.CREATING_MB_SOCKET;
+
+            IVal = new List<int>();
+            BVal = new List<bool>();
+            UIVal = new List<uint>();
+        }
+
+        private bool Connect()
+        {
+            try
+            {
+                _client = new TcpClient(IPAddress, Port);
+                _client.LingerState = new LingerOption(true, 1);
+                _master = ModbusIpMaster.CreateIp(_client);
+                return (_master != null) ? true : false;
+            }
+            catch (Exception e)
+            {
+                var aa = e.InnerException;
+                return false;
+            }           
+        }
+
+        public void ModbusConnectorThread()
+        {
+            while (true)
+            {
+                switch (_myMbState)
+                {
+                    case MbState.CREATING_MB_SOCKET:                        
+                        if (Connect())
+                        {
+                            IsConnected = true;
+                            _myMbState = MbState.CONNECTION_MB_ESTABLISHED;
+                        }
+                        else
+                        {
+                            IsConnected = false;
+                            if (_master != null) _master.Dispose();
+                            if (_client != null)  _client.Close();                                                                
+                            System.Threading.Thread.Sleep(5000); // Re-try to connect after 5 seconds
+                        }
+                        break;
+
+                    case MbState.CONNECTION_MB_ESTABLISHED:
+                        // Read			
+                        lock (IVal)
+                            lock (BVal)
+                                lock (UIVal)
+                                {
+                                    IVal.Clear();
+                                    BVal.Clear();
+                                    UIVal.Clear();
+                                    for (int i = 0; i < N3PR.N3PR_REG_LEN; i++)
+                                    {
+                                        try
+                                        {
+                                            ushort[] regs = _master.ReadHoldingRegisters(N3PR.REG_ADDRESS[i], 1);
+                                            if (regs != null && regs.Count() > 0)
+                                            {
+                                                // Copy values
+                                                IVal.Add((int)regs[0]);
+                                                BVal.Add(Convert.ToBoolean(regs[0]));
+                                                UIVal.Add((uint)regs[0]);
+                                            }
+                                        }
+                                        catch
+                                        {
+                                            IsConnected = false;
+                                            Status = "Error reading " + N3PR.REG_ADDRESS[i].ToString() + " ModBus register.\n";
+                                            ErrorEvent?.Invoke(this, null);
+                                            if (_master != null) _master.Dispose();
+                                            if (_client != null)  _client.Close();
+                                            _myMbState = MbState.CREATING_MB_SOCKET;
+                                            break;
+                                        }
+                                    }
+                                }
+
+                        // Read done
+                        OnDataReceivedEvent?.Invoke(this, null); ;
+                        // Sleep for a certain amount of time
+                        System.Threading.Thread.Sleep(1000 * FreqReadSec);
+                        break;
+                }
+            }
+        }
+    }
+}
