@@ -25,6 +25,10 @@ namespace N3PR_WPFclient.Connectors
         private List<MeasurePoint> _alarmList, _alarmOldList;
 
         public bool IsConnected { get { return _isConnected; } set { _isConnected = value; ConnectionChangedEvent?.Invoke(this, null); } }
+        public ThreadState DataRetrievingThreadState { get {
+                if (_dataRetrievingThread != null) return _dataRetrievingThread.ThreadState;
+                else return ThreadState.Stopped;
+            } }
 
         public EventHandler OnDataReceivedEvent;
         public EventHandler ConnectionChangedEvent;

@@ -35,6 +35,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Resources\Gecco.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="MySql.Data, Version=6.9.11.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
       <HintPath>packages\MySql.Data.6.9.11\lib\net45\MySql.Data.dll</HintPath>
@@ -118,6 +121,8 @@
     <Content Include="mb_config.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Resource Include="Resources\Gecco.ico" />
+    <Resource Include="Resources\Image.png" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NModbus4\NModbus4\NModbus4.csproj">

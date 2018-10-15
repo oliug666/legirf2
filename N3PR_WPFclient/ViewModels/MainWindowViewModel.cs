@@ -18,7 +18,9 @@ namespace N3PR_WPFclient.ViewModels
 
         private string _modbusConnStatus, _sqlConnStatus, _statusMessage;
         private string _mbRxDataCounter, _sqlTxDataCounter;
-        private string _queueDataCounter;
+        private string _mbJobStatus, _sqlJobStatus;
+        private string _queueDataCounter, _versionNr;
+        private bool _isQueueEmptyMessageAlreadySent;
 
         public string ModbusConnectionStatus { get { return _modbusConnStatus; } set { _modbusConnStatus = value; OnPropertyChanged(() => ModbusConnectionStatus); } }
         public string SqlConnectionStatus { get { return _sqlConnStatus; } set { _sqlConnStatus = value; OnPropertyChanged(() => SqlConnectionStatus); } }
@@ -26,11 +28,21 @@ namespace N3PR_WPFclient.ViewModels
         public string MbRxDataCounter { get { return _mbRxDataCounter; } set { _mbRxDataCounter = value; OnPropertyChanged(() => MbRxDataCounter); } }
         public string SqlTxDataCounter { get { return _sqlTxDataCounter; } set { _sqlTxDataCounter = value; OnPropertyChanged(() => SqlTxDataCounter); } }
         public string QueueDataCounter { get { return _queueDataCounter; } set { _queueDataCounter = value; OnPropertyChanged(() => QueueDataCounter); } }
-
+        public string MbJobStatus { get { return _mbJobStatus; } set { _mbJobStatus = value; OnPropertyChanged(() => MbJobStatus); } }
+        public string SqlJobStatus { get { return _sqlJobStatus; } set { _sqlJobStatus = value; OnPropertyChanged(() => SqlJobStatus); } }
+        public string VersionNr { get { return _versionNr; } set { _versionNr = value; OnPropertyChanged(() => VersionNr); } }
         public MainWindowViewModel()
         {
+            // Display version
+            Version version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;     
+            // Version increases each day, since 10/10/2018
+            VersionNr = $"{version.Major}.{version.MajorRevision}.{version.Build}";
+
             // Read eventually unsent data
             StartupAndReadUnsentData();
+
+            // Initialize connection status string
+            SqlConnectionStatus = ModbusConnectionStatus = "Disconnected";
 
             XDocument doc = new XDocument();
             try
@@ -92,7 +104,11 @@ namespace N3PR_WPFclient.ViewModels
             Thread RefreshQueueCounterTh = new Thread(RefreshQueueCounter);
             RefreshQueueCounterTh.IsBackground = true;
             RefreshQueueCounterTh.Start();
-        }
+
+            Thread RefreshJobStatusTh = new Thread(RefreshJobStatus);
+            RefreshJobStatusTh.IsBackground = true;
+            RefreshJobStatusTh.Start();
+        }        
 
         private string ParseXmlElement(IEnumerable<XNode> nodes)
         {
@@ -121,9 +137,10 @@ namespace N3PR_WPFclient.ViewModels
         private void SqlDataTransmitted(object sender, System.EventArgs e)
         {
             SqlTxDataCounter = (Convert.ToInt32(SqlTxDataCounter) + 1).ToString();
-            if (DataContainer.Data.DataQueue.Count == 0)
+            if (DataContainer.Data.DataQueue.Count == 0 && !_isQueueEmptyMessageAlreadySent)
             {
-                StatusMessage += DateTime.Now.ToString("[yyyy-MM-dd HH:mm:ss]") + " MySQL queue Empty!.\n";
+                _isQueueEmptyMessageAlreadySent = true;
+                //StatusMessage += DateTime.Now.ToString("[yyyy-MM-dd HH:mm:ss]") + " MySQL queue Empty!.\n";
             }
         }
 
@@ -150,6 +167,29 @@ namespace N3PR_WPFclient.ViewModels
                 Thread.Sleep(300);
             }
         }
+        private void RefreshJobStatus()
+        {
+            while (true)
+            {
+                if (MbConnector.DataRetrievingThreadState == ThreadState.Running)
+                    MbJobStatus = "READING";
+                else
+                    MbJobStatus = "IDLE";
+
+                if (DbConnectorTh != null)
+                {
+                    if (DbConnectorTh.ThreadState == ThreadState.Running && DbConnector.IsConnected)
+                    {
+                        SqlJobStatus = "UPLOADING"; //"UPLOADING"
+                    }
+                    else
+                        SqlJobStatus = "IDLE"; //"UPLOADING"
+                }
+                else
+                    SqlJobStatus = "IDLE"; //"UPLOADING"
+                Thread.Sleep(300);
+            }
+        }
 
         public void TerminateExecutionAndSaveUnsentData()
         {
@@ -159,7 +199,7 @@ namespace N3PR_WPFclient.ViewModels
                 DbConnector.Dispose();
 
             MbConnectorTh.Abort();
-            while (MbConnectorTh.ThreadState != ThreadState.Aborted) ;
+            while (MbConnectorTh.ThreadState != ThreadState.Aborted && MbConnector.IsConnected) ;
             if (MbConnector.IsConnected)
                 MbConnector.Dispose();
 

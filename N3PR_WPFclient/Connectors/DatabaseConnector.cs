@@ -98,6 +98,7 @@ namespace N3PR_WPFclient.Connectors
                                 }
                                 break;
                             }
+                            // Signal event for visualization
                             OnDataTransmittedEvent?.Invoke(this, null);
                         }                                                                                                
 
