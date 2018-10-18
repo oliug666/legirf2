@@ -29,8 +29,8 @@
         <TextBlock Grid.Column="1" Grid.Row="1" Text="Service" VerticalAlignment="Center" FontWeight="Bold" TextDecorations="Underline" Height="20" Margin="0,4"></TextBlock>
         <TextBlock Grid.Column="1" Grid.Row="3" Text="MySQL" VerticalAlignment="Center" Height="20"/>
         <TextBlock Grid.Column="1" Grid.Row="2" Text="MODBUS" VerticalAlignment="Center" Height="20"/>
-        <TextBox Grid.Column="1" Grid.Row="4" Grid.ColumnSpan="5" IsReadOnly="True" Text="{Binding StatusMessage}" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-         ScrollViewer.VerticalScrollBarVisibility="Visible" Height="260" Grid.RowSpan="2" VerticalAlignment="Center"/>
+        <TextBox Grid.Column="1" Grid.Row="4" Grid.ColumnSpan="5" IsReadOnly="True" Text="{Binding StatusMessage}" ScrollViewer.HorizontalScrollBarVisibility="Visible"
+         ScrollViewer.VerticalScrollBarVisibility="Visible" Height="260" Width="490" Grid.RowSpan="2" VerticalAlignment="Center"/>
         <TextBlock Grid.Column="4" Grid.Row="6" Width="70" Text="Version No." VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Bold" TextDecorations="Underline" Height="18" Margin="29.6,66.6,1.2,-63.8"></TextBlock>
         <TextBlock Grid.Column="2" Grid.Row="1" Text="Status" VerticalAlignment="Center" FontWeight="Bold" TextDecorations="Underline" Height="20" Margin="0,4"></TextBlock>
         <TextBlock Grid.Column="2" Grid.Row="2" Text="{Binding ModbusConnectionStatus}" VerticalAlignment="Center" Height="20" Margin="0,2.6,9.8,3.2"/>
@@ -41,7 +41,7 @@
         <TextBox Grid.Column="3" Grid.Row="3" Width="90" Height="20" IsReadOnly = "True" Text="{Binding SqlTxDataCounter}" HorizontalAlignment="Left"></TextBox>
         <TextBlock Grid.Column="4" Grid.Row="1" Text="Queue" VerticalAlignment="Center" HorizontalAlignment="Left" FontWeight="Bold" TextDecorations="Underline" Height="20"></TextBlock>
         <TextBox Grid.Column="4" Grid.Row="2" Width="100" Height ="20" IsReadOnly="True" Text="{Binding QueueDataCounter}" HorizontalAlignment="Center"></TextBox>
-        <Image Source="Resources/Image.png" Height="80" Grid.ColumnSpan="3" Grid.Column="1" Grid.Row="6" Margin="0.4,9.6,-0.4,-68.8"></Image>
+        <Image Source="Resources/Frigel.png" Height="80" Grid.ColumnSpan="3" Grid.Column="1" Grid.Row="6" Margin="0.4,9.6,-0.4,-68.8"></Image>
         <TextBlock Grid.Column="5" Grid.Row="1" Text="Job" VerticalAlignment="Center" HorizontalAlignment="Left" FontWeight="Bold" TextDecorations="Underline" Height="20"></TextBlock>
         <TextBox Grid.Column="5" Grid.Row="2" Width="90" Height="20" IsReadOnly = "True" Text="{Binding MbJobStatus}" HorizontalAlignment="Left"></TextBox>
         <TextBox Grid.Column="5" Grid.Row="3" Width="90" Height="20" IsReadOnly = "True" Text="{Binding SqlJobStatus}" HorizontalAlignment="Left"></TextBox>
