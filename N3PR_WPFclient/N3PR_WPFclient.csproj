@@ -121,8 +121,8 @@
     <Content Include="mb_config.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Resource Include="Resources\Frigel.png" />
     <Resource Include="Resources\Gecco.ico" />
-    <Resource Include="Resources\Image.png" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NModbus4\NModbus4\NModbus4.csproj">
