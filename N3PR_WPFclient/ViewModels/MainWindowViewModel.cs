@@ -21,6 +21,10 @@ namespace N3PR_WPFclient.ViewModels
         private string _mbJobStatus, _sqlJobStatus;
         private string _queueDataCounter, _versionNr;
         private bool _isQueueEmptyMessageAlreadySent;
+        private string _sqlOldConnStatus;
+        private string _modbusOldConnStatus;
+        private string _dbConnOldStatus;
+        private string _mbConnOldStatus;
 
         public string ModbusConnectionStatus { get { return _modbusConnStatus; } set { _modbusConnStatus = value; OnPropertyChanged(() => ModbusConnectionStatus); } }
         public string SqlConnectionStatus { get { return _sqlConnStatus; } set { _sqlConnStatus = value; OnPropertyChanged(() => SqlConnectionStatus); } }
@@ -86,6 +90,7 @@ namespace N3PR_WPFclient.ViewModels
             MbConnector.OnDataReceivedEvent += new EventHandler(MbDataReceived);
             MbConnector.ConnectionChangedEvent += new EventHandler(MbConnectionStatusChanged);
             MbConnector.ErrorEvent += new EventHandler(MbErrorHandler);
+            MbConnector.OnAlarmReceivedEvent += new EventHandler(MbAlarmReceived);
             DbConnector.OnDataTransmittedEvent += new EventHandler(SqlDataTransmitted);
             DbConnector.ConnectionChangedEvent += new EventHandler(SqlConnectionStatusChanged);
             DbConnector.ErrorEvent += new EventHandler(SqlErrorHandler);
@@ -125,13 +130,21 @@ namespace N3PR_WPFclient.ViewModels
         private void MbConnectionStatusChanged(object sender, System.EventArgs e)
         {
             ModbusConnectionStatus = MbConnector.IsConnected ? "Connected" : "Disconnected";
-            StatusMessage += DateTime.Now.ToString("[yyyy-MM-dd HH:mm:ss]") + " Modbus status change: " + ModbusConnectionStatus+".\n";
+            if (_modbusOldConnStatus != _modbusConnStatus)
+            {
+                _modbusOldConnStatus = _modbusConnStatus;
+                StatusMessage += DateTime.Now.ToString("[yyyy-MM-dd HH:mm:ss]") + " Modbus status change: " + ModbusConnectionStatus + ".\n";
+            }
         }
 
         private void SqlConnectionStatusChanged(object sender, System.EventArgs e)
         {
             SqlConnectionStatus = DbConnector.IsConnected ? "Connected" : "Disconnected";
-            StatusMessage += DateTime.Now.ToString("[yyyy-MM-dd HH:mm:ss]") + " MySQL status change: " + SqlConnectionStatus + ".\n";
+            if (_sqlOldConnStatus != _sqlConnStatus)
+            {
+                _sqlOldConnStatus = _sqlConnStatus;
+                StatusMessage += DateTime.Now.ToString("[yyyy-MM-dd HH:mm:ss]") + " MySQL status change: " + SqlConnectionStatus + ".\n";
+            }
         }
 
         private void SqlDataTransmitted(object sender, System.EventArgs e)
@@ -149,14 +162,27 @@ namespace N3PR_WPFclient.ViewModels
             MbRxDataCounter = (Convert.ToInt32(MbRxDataCounter) + 1).ToString();            
         }
 
+        private void MbAlarmReceived(object sender, System.EventArgs e)
+        {
+            StatusMessage += DateTime.Now.ToString("[yyyy-MM-dd HH:mm:ss] ") + "Alarm status changed\n";
+        }
+
         private void MbErrorHandler(object sender, System.EventArgs e)
-        {            
-            StatusMessage += DateTime.Now.ToString("[yyyy-MM-dd HH:mm:ss] ") + MbConnector.Status;
+        {
+            if (_mbConnOldStatus != MbConnector.Status)
+            {
+                _mbConnOldStatus = MbConnector.Status;
+                StatusMessage += DateTime.Now.ToString("[yyyy-MM-dd HH:mm:ss] ") + MbConnector.Status;
+            }
         }
 
         private void SqlErrorHandler(object sender, System.EventArgs e)
         {
-            StatusMessage += DateTime.Now.ToString("[yyyy-MM-dd HH:mm:ss] ") + DbConnector.Status;
+            if (_dbConnOldStatus != DbConnector.Status)
+            {
+                _dbConnOldStatus = DbConnector.Status;
+                StatusMessage += DateTime.Now.ToString("[yyyy-MM-dd HH:mm:ss] ") + DbConnector.Status;
+            }
         }
 
         private void RefreshQueueCounter()
@@ -171,14 +197,14 @@ namespace N3PR_WPFclient.ViewModels
         {
             while (true)
             {
-                if (MbConnector.DataRetrievingThreadState == ThreadState.Running)
+                if (MbConnector.DataRetrievingThreadState == ThreadState.Background)
                     MbJobStatus = "READING";
                 else
                     MbJobStatus = "IDLE";
 
                 if (DbConnectorTh != null)
                 {
-                    if (DbConnectorTh.ThreadState == ThreadState.Running && DbConnector.IsConnected)
+                    if (DbConnectorTh.ThreadState == ThreadState.Background && DbConnector.IsConnected)
                     {
                         SqlJobStatus = "UPLOADING"; //"UPLOADING"
                     }

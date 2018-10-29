@@ -31,6 +31,7 @@ namespace N3PR_WPFclient.Connectors
             } }
 
         public EventHandler OnDataReceivedEvent;
+        public EventHandler OnAlarmReceivedEvent;
         public EventHandler ConnectionChangedEvent;
         public EventHandler ErrorEvent;
 
@@ -49,7 +50,7 @@ namespace N3PR_WPFclient.Connectors
             _myMbState = MbState.CREATING_MB_SOCKET;
 
             _alarmList = new List<MeasurePoint>();
-            _alarmOldList = new List<MeasurePoint>();
+            _alarmOldList = new List<MeasurePoint>();           
         }
 
         private bool Connect()
@@ -68,8 +69,8 @@ namespace N3PR_WPFclient.Connectors
             {
                 var aa = e.InnerException;
                 return false;
-            }        
-#endif   
+            }            
+#endif
         }
 
         public void Dispose()
@@ -83,7 +84,7 @@ namespace N3PR_WPFclient.Connectors
             {
                 Status = "Error disposing Modbus objects " + e.Message + " .\n";
                 ErrorEvent?.Invoke(this, null);
-            }
+            }            
         }
 
         public void ModbusConnectorThread()
@@ -98,6 +99,9 @@ namespace N3PR_WPFclient.Connectors
 #if !DEMO
                             IsConnected = true;
                             _myMbState = MbState.CONNECTION_MB_ESTABLISHED;
+                            // Initialize alarm list
+                            InitializeAlarmList();
+                            // Start threads
                             _dataRetrievingThread = new Thread(DataRetrievingThread);
                             _dataRetrievingThread.IsBackground = true;
                             _alarmRetrievingThread = new Thread(AlarmRetrievingThread);
@@ -195,20 +199,35 @@ namespace N3PR_WPFclient.Connectors
                                             Date = now,
                                             Reg_Name = N3PR.REG_NAMES[i],
                                             b_val = Convert.ToBoolean(rnd.Next(0, 2)),
-                                            i_val = (int)rnd.Next(-32767, 32767),
+                                            i_val = Convert.ToInt32((uint)65197),
                                             ui_val = (uint)rnd.Next(0, 65535)
                                         };
 #else
-                                var mp = new MeasurePoint
+                                if (regs[0] < 32766)
                                 {
-                                    Date = now,
-                                    Reg_Name = N3PR.REG_NAMES[i],
-                                    b_val = Convert.ToBoolean(regs[0]),
-                                    i_val = (int)regs[0],
-                                    ui_val = (uint)regs[0]
-                                };
-#endif
-                                DataContainer.Data.DataQueue.Add(mp);
+                                    var mp = new MeasurePoint
+                                    {
+                                        Date = now,
+                                        Reg_Name = N3PR.REG_NAMES[i],
+                                        b_val = Convert.ToBoolean(regs[0]),
+                                        i_val = Convert.ToInt32(regs[0]),
+                                        ui_val = (uint)regs[0]
+                                    };
+                                    DataContainer.Data.DataQueue.Add(mp);
+                                }
+                                else
+                                {
+                                    var mp = new MeasurePoint
+                                    {
+                                        Date = now,
+                                        Reg_Name = N3PR.REG_NAMES[i],
+                                        b_val = Convert.ToBoolean(regs[0]),
+                                        i_val = Convert.ToInt32(regs[0] - 65532),
+                                        ui_val = (uint)regs[0]
+                                    };
+                                    DataContainer.Data.DataQueue.Add(mp);
+                                }
+#endif                                
                                 OnDataReceivedEvent?.Invoke(this, null);
                             }
                         }
@@ -245,7 +264,7 @@ namespace N3PR_WPFclient.Connectors
                             regs = _master.ReadInputRegisters(N3PR.ALARM_ADDRESS[i], 1);
                         }
                         else if (N3PR.ALARM_FUNCTION_CODES[i] == "0x02")
-                        {                            
+                        {
                             bool[] _hh = _master.ReadInputs(N3PR.ALARM_ADDRESS[i], 1);
                             for (int j = 0; j < _hh.Count(); j++)
                                 regs[j] = Convert.ToUInt16(_hh[j]);
@@ -271,44 +290,55 @@ namespace N3PR_WPFclient.Connectors
                                 ui_val = (uint)regs[0]
                             };
 #endif
-                            // First connection, we populate the two list
-                            if (_alarmOldList.Count() == 0)
-                            {
-                                _alarmList.Add(mp);
-                                _alarmOldList.Add(mp);
-                            }
-                            else
-                                _alarmList.Add(mp);                            
+                            _alarmList.Add(mp);
                         }
                     }
                     catch
                     {
                         _alarmList.Clear();
-                        _alarmOldList.Clear();
                         Status = "Error reading Alarm ModBus register.\n";
                         return;
                     }
-                    // Check if the alarm status has changed
-                    // If so, send to database
-                    if (_alarmOldList.Count() == _alarmList.Count())
+                }
+                // Check if the alarm status has changed
+                // If so, send to database
+                if (_alarmOldList.Count() == _alarmList.Count())
+                {
+                    for (int j = 0; j < _alarmOldList.Count(); j++)
                     {
-                        for (int j = 0; j < _alarmOldList.Count(); j++)
+                        if (_alarmList[j].b_val != _alarmOldList[j].b_val)
                         {
-                            if (_alarmList[j].b_val != _alarmOldList[j].b_val)
+                            // Memorize values
+                            _alarmOldList[j] = _alarmList[j];
+                            lock (DataContainer.Data.DataQueue)
                             {
-                                // Memorize values
-                                _alarmOldList[j] = _alarmList[j];
-                                lock (DataContainer.Data.DataQueue)
-                                {
-                                    DataContainer.Data.DataQueue.Add(_alarmList[j]);
-                                    OnDataReceivedEvent?.Invoke(this, null);
-                                }
+                                DataContainer.Data.DataQueue.Add(_alarmList[j]);
+                                OnDataReceivedEvent?.Invoke(this, null);
                             }
+                            //Trigger also a message to display the alarm
+                            OnAlarmReceivedEvent?.Invoke(this, null);
                         }
                     }
-                                        
                 }
                 Thread.Sleep(1000);
+            }
+        }
+        
+        private void InitializeAlarmList()
+        {
+            _alarmOldList.Clear();
+            // Initialize the buffer alarm list with 0 (no alarms)
+            for (int i=0;i<N3PR.ALARM_ADDRESS.Count();i++)
+            {
+                var mp = new MeasurePoint
+                {
+                    Date = DateTime.Now,
+                    Reg_Name = N3PR.ALARM_NAMES[i],
+                    b_val = Convert.ToBoolean(0),
+                    i_val = 0,
+                    ui_val = 0
+                };
+                _alarmOldList.Add(mp);
             }
         }
     }
