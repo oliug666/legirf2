@@ -7,12 +7,12 @@ using System.Windows;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("N3PR_WPFclient")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("N3PR Logger")]
+[assembly: AssemblyDescription("N3PR Logger")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Frigel")]
 [assembly: AssemblyProduct("N3PR_WPFclient")]
-[assembly: AssemblyCopyright("Copyright ©  2018")]
+[assembly: AssemblyCopyright("Copyright © Frigel 2018")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
