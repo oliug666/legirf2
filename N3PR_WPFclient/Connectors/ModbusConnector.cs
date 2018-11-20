@@ -50,7 +50,8 @@ namespace N3PR_WPFclient.Connectors
             _myMbState = MbState.CREATING_MB_SOCKET;
 
             _alarmList = new List<MeasurePoint>();
-            _alarmOldList = new List<MeasurePoint>();           
+            _alarmOldList = new List<MeasurePoint>();
+            InitializeAlarmOldList(); // Populate buffer list with alarms 0 (not active)
         }
 
         private bool Connect()
@@ -99,8 +100,6 @@ namespace N3PR_WPFclient.Connectors
 #if !DEMO
                             IsConnected = true;
                             _myMbState = MbState.CONNECTION_MB_ESTABLISHED;
-                            // Initialize alarm list
-                            InitializeAlarmList();
                             // Start threads
                             _dataRetrievingThread = new Thread(DataRetrievingThread);
                             _dataRetrievingThread.IsBackground = true;
@@ -324,7 +323,7 @@ namespace N3PR_WPFclient.Connectors
             }
         }
         
-        private void InitializeAlarmList()
+        private void InitializeAlarmOldList()
         {
             _alarmOldList.Clear();
             // Initialize the buffer alarm list with 0 (no alarms)
