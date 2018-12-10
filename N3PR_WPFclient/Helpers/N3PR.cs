@@ -10,6 +10,13 @@ namespace N3PR_WPFclient.Helpers
     {
         public static string DATA_FORMAT = "yyyy-MM-dd HH:mm:ss";
         public static int MAX_RESEND_TRIALS = 5;
+
+        public static string DATE = "DATE";
+        public static string REG_NAME = "REG_NAME";
+        public static string BVAL = "B_VAL";
+        public static string IVAL = "I_VAL";
+        public static string UIVAL = "UI_VAL";
+
         public static List<string> REG_NAMES = new List<string> {
         "STE_PTA",
         "STE_PTE",

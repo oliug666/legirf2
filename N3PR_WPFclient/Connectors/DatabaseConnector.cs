@@ -66,9 +66,15 @@ namespace N3PR_WPFclient.Connectors
                         // Wait for event from Modbus_thread
                         while (DataContainer.Data.DataQueue.TryTake(out _dataPoint, -1))
                         {
-                            string insertquery = string.Format("INSERT INTO " + _tableName + " (DATE,REG_NAME,B_VAL,I_VAL,UI_VAL) VALUES ('{0}','{1}','{2}','{3}','{4}')",
-                                _dataPoint.Date.ToString(N3PR.DATA_FORMAT), _dataPoint.Reg_Name, Convert.ToInt16(_dataPoint.b_val), 
+                            /*
+                            string insertquery = string.Format("INSERT INTO " + _tableName + "(" + N3PR.DATE + "," + N3PR.REG_NAME + "," + N3PR.BVAL +
+                                "," + N3PR.IVAL + "," + N3PR.UIVAL + ") VALUES ('{0}','{1}','{2}','{3}','{4}')",
+                                _dataPoint.Date.ToString(N3PR.DATA_FORMAT), _dataPoint.Reg_Name, Convert.ToInt16(_dataPoint.b_val),
                                 _dataPoint.i_val, _dataPoint.ui_val);
+                            */
+                            string insertquery = string.Format("INSERT INTO " + _tableName + "(" + N3PR.DATE + "," + N3PR.REG_NAME + "," + 
+                                N3PR.IVAL + ") VALUES ('{0}','{1}','{2}','{3}','{4}')", _dataPoint.Date.ToString(N3PR.DATA_FORMAT), _dataPoint.Reg_Name, _dataPoint.i_val);
+
                             var cmd = new MySqlCommand(insertquery, _mySqlConnection);
                             try
                             {
