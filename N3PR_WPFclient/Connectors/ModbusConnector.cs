@@ -193,14 +193,15 @@ namespace N3PR_WPFclient.Connectors
                             if (regs != null && regs.Count() > 0)
                             {
 #if DEMO
-                                        var mp = new MeasurePoint
-                                        {
-                                            Date = now,
-                                            Reg_Name = N3PR.REG_NAMES[i],
-                                            b_val = Convert.ToBoolean(rnd.Next(0, 2)),
-                                            i_val = Convert.ToInt32((uint)65197),
-                                            ui_val = (uint)rnd.Next(0, 65535)
-                                        };
+                                var mp = new MeasurePoint
+                                {
+                                    Date = now,
+                                    Reg_Name = N3PR.REG_NAMES[i],
+                                    b_val = Convert.ToBoolean(rnd.Next(0, 2)),
+                                    i_val = Convert.ToInt32((uint)rnd.Next(0, 32766)),
+                                    ui_val = (uint)rnd.Next(0, 65535)
+                                };
+                                DataContainer.Data.DataQueue.Add(mp);
 #else
                                 if (regs[0] < 32766)
                                 {
@@ -271,14 +272,14 @@ namespace N3PR_WPFclient.Connectors
                         if (regs != null && regs.Count() > 0)
                         {
 #if DEMO
-                                        var mp = new MeasurePoint
-                                        {
-                                            Date = now,
-                                            Reg_Name = N3PR.ALARM_NAMES[i],
-                                            b_val = Convert.ToBoolean(rnd.Next(0, 2)),
-                                            i_val = (int)rnd.Next(-32767, 32767),
-                                            ui_val = (uint)rnd.Next(0, 65535)
-                                        };
+                            var mp = new MeasurePoint
+                            {
+                                Date = now,
+                                Reg_Name = N3PR.ALARM_NAMES[i],
+                                b_val = Convert.ToBoolean(rnd.Next(0, 2)),
+                                i_val = (int)rnd.Next(-32767, 32767),
+                                ui_val = (uint)rnd.Next(0, 65535)
+                            };
 #else
                             var mp = new MeasurePoint
                             {

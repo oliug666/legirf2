@@ -8,8 +8,8 @@
     <MySql>
     	<addr>163.172.190.253</addr>
     	<db_name>N3PR_DATA</db_name>
-	<table_name>n3pr_data</table_name>
+	<table_name>n3pr_fast</table_name>
     	<username>n3pr_client</username>
-    	<pwd>Sein3pr?0</pwd>
+    	<pwd>3prdbclient!</pwd>
     </MySql>
 </Configuration>

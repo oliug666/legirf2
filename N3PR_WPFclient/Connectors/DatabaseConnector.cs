@@ -73,7 +73,7 @@ namespace N3PR_WPFclient.Connectors
                                 _dataPoint.i_val, _dataPoint.ui_val);
                             */
                             string insertquery = string.Format("INSERT INTO " + _tableName + "(" + N3PR.DATE + "," + N3PR.REG_NAME + "," + 
-                                N3PR.IVAL + ") VALUES ('{0}','{1}','{2}','{3}','{4}')", _dataPoint.Date.ToString(N3PR.DATA_FORMAT), _dataPoint.Reg_Name, _dataPoint.i_val);
+                                N3PR.IVAL + ") VALUES ('{0}','{1}','{2}')", _dataPoint.Date.ToString(N3PR.DATA_FORMAT), _dataPoint.Reg_Name, _dataPoint.i_val);
 
                             var cmd = new MySqlCommand(insertquery, _mySqlConnection);
                             try
